@@ -15,18 +15,19 @@ class LoginViewModel: ObservableObject{
    // @Published var user = User()
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
-
+    @Published var isLoggedIn: Bool = false 
     
     
-        // Simulate a login request
     func login() {
         isLoading = true
         errorMessage = nil
+        
         
         // Simulate network call delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             if self.email == "sheharajaya7@gmail.com" && self.password == "password" {
                 // Successful login
+                self.isLoggedIn = true
                 self.isLoading = false
             } else {
                 // Error in login

@@ -9,32 +9,41 @@ import SwiftUI
 
 struct NavigationBarView: View {
     var body: some View {
-        
-        
-        
-        TabView {
-            // Home Tab
-            HomeView()
-                .tabItem {
-                    Image(systemName: "house.fill")
-                    Text("Home")
-                }
+        //NavigationStack {
             
-            LoginView()
-                    .tabItem {
-                        Image(systemName: "magnifyingglass")
-                        Text("Search")
-                    }
+   
+            VStack{
+                Spacer()
+                
+                Rectangle()
+                    .cornerRadius(34)
+                    .frame(width: 340, height: 80)
+                    .foregroundColor(Color.white)
+                    .opacity(0.4)
+                    .overlay(
+                        HStack {
+                        
+                           
+                            NavigationLink(destination: HomeView())
+                            {
+                                Image(systemName: "house.fill")
+                                    .resizable()
+                                    .frame(width: 30, height: 30)
+                                    .foregroundColor(.green)
+                            }
+                            
+                            
+                            
+                            
+                        }
+                    )
+                // .padding(.bottom, 15)
+                
+                
+            }
             
             
-        }
-        .cornerRadius(45)
-        //.shadow(radius: 50)
-        .background(Color.white.opacity(0.6))
-        
-        
-        
-        
+      //  }
     }
 }
 
