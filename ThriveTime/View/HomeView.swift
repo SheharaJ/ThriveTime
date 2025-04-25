@@ -7,51 +7,71 @@
 
 import Foundation
 import SwiftUI
+import AVKit
+import UserNotifications
+
 
 struct HomeView: View {
     @State private var isRunning = false
     @State private var time = "00:00"
-    @State private var selectedMemoji = "memoji_1"
+    @State private var selectedMemoji = "girl_10"
     @State private var showMemojiPicker = false
-
-
+    @State private var timer: Timer?
+    @State private var secondsElapsed = 0
+    @State private var memojiList = ["girl_10", "girl_9", "girl_8", "girl_7", "girl_6", "girl_5", "girl_4", "girl_3", "girl_2", "girl_1"]
+    @State private var memjies = ["girl_10", "girl_9", "girl_8", "girl_7", "girl_6", "girl_5", "girl_4", "girl_3", "girl_2", "girl_1"]
+    
+    @State private var memojiIndex = 0
+    
+    
+    
     var body: some View {
         ZStack {
-            Color.init(hex: "#1A1A1D").ignoresSafeArea()
-            VStack(spacing: 30) {
-                Spacer()
+            VStack() {
                 Text("Shehara")
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                    .font(.system(size: 30, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
-               
+                    .padding(.top)
+                HStack(spacing:0){
+                    Text("Trive")
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .foregroundColor(.purple)
+                    Text("Time")
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white)
+                }
+                Spacer()
+                
+                
                 ZStack {
                     
-                  
+                    
                     Circle()
                         .stroke(Color.lightPurple, lineWidth: 2)
-                        .frame(width: 290, height: 290)
+                        .frame(width: 240, height: 240)
                         .opacity(0.4)
                     Circle()
                         .stroke(Color.lightPurple, lineWidth: 5)
-                        .frame(width: 270, height: 270)
+                        .frame(width: 230, height: 230)
                         .opacity(0.6)
                     Circle()
                         .fill(.purple)
-                        .frame(width: 250, height: 250)
+                        .frame(width: 210, height: 210)
                     
                     Image(selectedMemoji)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 220, height: 220)
-                   
-
+                        .frame(width: 170, height: 170)
+                    
                 }
+                
+                
                 
                 ZStack {
                     Circle()
                         .fill(Color.lightPurple)
                         .frame(width: 60, height: 60)
-
+                    
                     Image(systemName: "camera")
                         .resizable()
                         .scaledToFit()
@@ -61,29 +81,28 @@ struct HomeView: View {
                 .onTapGesture {
                     showMemojiPicker = true
                 }
-                .padding(.top, -70)
-
-
-
-                // Show Time
+                .padding(.top, -50)
+                
+                Spacer()
+                
+                
                 Text(time)
                     .font(.system(size: 48, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
                 
-                Spacer()
                 
                 HStack{
                     Text("Joined people")
-                        .font(.system(size: 20, weight: .semibold, design: .rounded))
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundColor(.white)
                     Spacer()
                     Text("+ Invite")
-                        .font(.system(size: 20, weight: .regular, design: .rounded))
+                        .font(.system(size: 15, weight: .regular, design: .rounded))
                         .foregroundColor(.lightPurple)
                 }
                 .padding(.horizontal,20)
-                .padding(.bottom,-10)
-
+                .padding(.vertical)
+                
                 ScrollView(.horizontal){
                     HStack(spacing:20){
                         
@@ -107,42 +126,96 @@ struct HomeView: View {
                     }
                 }
                 .padding(.horizontal,20)
-
-
-                // Buttons
+                
+                
                 VStack{
                     HStack(spacing: 40) {
                         Button(action: {
+                            if isRunning {
+                                self.resetTimer()
+                            } else {
+                                memojiIndex = 0
+                                selectedMemoji = memojiList[memojiIndex]
+                                timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+                                    secondsElapsed += 1
+                                    time = formatTime(seconds: secondsElapsed)
+                                    
+                                    if secondsElapsed % 3 == 0 {
+                                        if memojiIndex < memojiList.count - 1 {
+                                            memojiIndex += 1
+                                            withAnimation(.easeInOut(duration: 0.3)) {
+                                                selectedMemoji = memojiList[memojiIndex]
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                NotificationManager.shared.scheduleNotification(
+                                    title: "Timer Started",
+                                    body: "Stay focused — your timer is now running!"
+                                )
+                                speak("Time is Started and Stay Focused")
+                            }
                             isRunning.toggle()
                         }) {
                             Spacer()
-                            Image(systemName: "timer")
+                            Image(systemName: isRunning ? "pause.fill" : "timer")
                                 .foregroundColor(.white)
                                 .fontWeight(.semibold)
-                            Text(isRunning ? "Pause Time" : "Start Timer")
+                            Text(isRunning ? "Stop Timer" : "Start Timer")
                                 .foregroundColor(.white)
                                 .fontWeight(.semibold)
-
                             Spacer()
                         }
                         .padding()
                         .background(Color.purple)
                         .cornerRadius(15)
-                        .padding(.horizontal,20)
-
+                        .padding(20)
+                        
+                        
                     }
                     .frame(maxWidth: .infinity)
                     
                 }
             }
             .sheet(isPresented: $showMemojiPicker) {
-                MemojiPicker(selectedMemoji: $selectedMemoji, showMemojiPicker: $showMemojiPicker)
-                    .presentationDetents([.height(150)])
             }
-
-
+            
+            
         }
+        .background(Color.init(hex: "#1A1A1D"))
+        .onAppear {
+            NotificationManager.shared.requestAuthorization()
+        }
+        
+        
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+            resetTimer()
+        }
+        
+        
     }
+    
+    func speak(_ message: String) {
+        let utterance = AVSpeechUtterance(string: message)
+        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+        let synthesizer = AVSpeechSynthesizer()
+        synthesizer.speak(utterance)
+    }
+    
+    func resetTimer() {
+        self.timer?.invalidate()
+        self.timer = nil
+        self.secondsElapsed = 0
+        self.time = "00:00"
+        
+        NotificationManager.shared.scheduleNotification(
+            title: "Timer Stopped",
+            body: "Stay focused — your timer is now stopped!"
+        )
+    }
+  
+    
 }
 
 #Preview {
@@ -158,12 +231,12 @@ struct FriendItemView : View {
             ZStack {
                 Circle()
                     .fill(color)
-                    .frame(width: 70, height: 70)
+                    .frame(width: 60, height: 60)
                 
                 Image("memoji_1")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 65, height: 65)
+                    .frame(width: 40, height: 40)
             }
             
             Text(name)
@@ -176,46 +249,12 @@ struct FriendItemView : View {
 }
 
 
-struct MemojiPicker: View {
-    @Binding var selectedMemoji: String
-    @Binding var showMemojiPicker: Bool
-
-    let memojis = ["memoji_1", "memoji_2", "memoji_3", "memoji_4", "memoji_5", "memoji_6", "memoji_7", "memoji_8"]
-
-    var body: some View {
-        VStack(spacing: 20) {
-            ScrollView(.horizontal) {
-                HStack(spacing: 20) {
-                    ForEach(memojis, id: \.self) { memoji in
-                        Image(memoji)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 80, height: 80)
-                            .onTapGesture {
-                                selectedMemoji = memoji
-                                showMemojiPicker = false // Dismiss the sheet
-                            }
-                            .clipShape(Circle())
-                            .overlay(Circle().stroke(Color.gray.opacity(0.4), lineWidth: 2))
-                    }
-                }
-                .padding(.top)
-                .padding()
-            }
-
-            Spacer()
-        }
-        .background(Color(hex: "#000000"))
-    }
-}
-
-
 extension Color {
     static let sheetBackground = Color(hex: "#3D365C")
     
     init(hex: String) {
         let scanner = Scanner(string: hex)
-        _ = scanner.scanString("#") // skip #
+        _ = scanner.scanString("#")
         
         var rgb: UInt64 = 0
         scanner.scanHexInt64(&rgb)
@@ -226,4 +265,11 @@ extension Color {
         
         self.init(.sRGB, red: r, green: g, blue: b)
     }
+}
+
+
+func formatTime(seconds: Int) -> String {
+    let minutes = seconds / 60
+    let seconds = seconds % 60
+    return String(format: "%02d:%02d", minutes, seconds)
 }
