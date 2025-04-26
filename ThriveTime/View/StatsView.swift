@@ -10,30 +10,17 @@ import SwiftUI
 
 
 struct StatsView: View {
-    
-    let myStats = AppUser(name: "You", imageName: "memoji_1", totalTime: 320, averageTime: 240, isFriend: false)
-    
-    let friends: [AppUser] = [
-        AppUser(name: "Bailey", imageName: "memoji_2", totalTime: 400, averageTime: 220, isFriend: true),
-        AppUser(name: "Charlie", imageName: "memoji_3", totalTime: 280, averageTime: 190, isFriend: true),
-        AppUser(name: "Elliot", imageName: "memoji_5", totalTime: 500, averageTime: 300, isFriend: true)
-    ]
-    
-    let allUsers: [AppUser] = [
-        AppUser(name: "Zara", imageName: "memoji_2", totalTime: 700, averageTime: 500, isFriend: false),
-        AppUser(name: "Milo", imageName: "memoji_4", totalTime: 620, averageTime: 410, isFriend: false)
-    ]
-    
+    @StateObject var viewModel = StatsViewModel()
+
     var body: some View {
         ZStack {
             Color(hex: "#1A1A1D").ignoresSafeArea()
-            
+
             ScrollView {
                 VStack(alignment: .leading, spacing: 25) {
-                    
                     HeaderTitle()
-                    MyStatsCard(user: myStats)
-                    
+                    MyStatsCard()
+
                     SectionTitle(title: "🔥 Challenges")
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 15) {
@@ -42,55 +29,68 @@ struct StatsView: View {
                         }
                         .padding(.horizontal)
                     }
-                    
+
                     SectionTitle(title: "🏆 Ranks")
                     VStack(spacing: 15) {
-                        RankCard(title: "Friends Rank", users: friends + [myStats])
-                        RankCard(title: "All Users", users: allUsers + [myStats])
+                        RankCard(title: "Friends Rank", users: viewModel.friends + [viewModel.currentUser])
+                        RankCard(title: "All Users", users: viewModel.allUsers + [viewModel.currentUser])
                     }
                 }
                 .padding()
             }
         }
+        .onAppear {
+            viewModel.fetchData()
+        }
     }
 }
 
+
 struct MyStatsCard: View {
-    let user: AppUser
-    
+    @StateObject private var userViewModel = UserViewModel()
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Image(user.imageName)
-                    .resizable()
-                    .frame(width: 60, height: 60)
-                    .clipShape(Circle())
-                    .padding(5)
-                    .background(Circle().fill(Color.purple))
-                
-                VStack(alignment: .leading) {
-                    Text(user.name)
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Text("Total: \(formatTime(user.totalTime))")
-                        .foregroundColor(.white)
-                    Text("Avg/Day: \(formatTime(user.averageTime))")
-                        .foregroundColor(.white.opacity(0.8))
+            if let user = userViewModel.currentUser {
+                HStack {
+                    Image("memoji_1")
+                        .resizable()
+                        .frame(width: 60, height: 60)
+                        .clipShape(Circle())
+                        .padding(5)
+                        .background(Circle().fill(Color.purple))
+                    
+                    VStack(alignment: .leading) {
+                        Text("Shehara")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Text("Total: \(formatTime(user.totalTime))")
+                            .foregroundColor(.white)
+                        Text("Avg/Day: \(formatTime(user.averageTime))")
+                            .foregroundColor(.white.opacity(0.8))
+                    }
+                    Spacer()
                 }
-                Spacer()
+            } else {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .purple))
             }
         }
         .padding()
         .background(Color.purple.opacity(0.3))
         .cornerRadius(15)
+        .onAppear {
+            userViewModel.fetchUser()
+        }
     }
-    
+
     func formatTime(_ mins: Int) -> String {
         let hrs = mins / 60
         let minsLeft = mins % 60
         return String(format: "%02d:%02d", hrs, minsLeft)
     }
 }
+
 
 
 struct ChallengeCard: View {

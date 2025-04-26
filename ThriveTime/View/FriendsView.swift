@@ -7,25 +7,12 @@
 
 import Foundation
 import SwiftUI
-
-
-
-
+import FirebaseFirestore
 
 struct FriendsView: View {
     
-    let friends: [AppUser] = [
-        AppUser(name: "Ales", imageName: "memoji_1", totalTime: 150, averageTime: 120, isFriend: true),
-        AppUser(name: "Bailey", imageName: "memoji_2", totalTime: 200, averageTime: 180, isFriend: true),
-        AppUser(name: "Charlie", imageName: "memoji_3", totalTime: 100, averageTime: 90, isFriend: true),
-        AppUser(name: "Dylani", imageName: "memoji_4", totalTime: 250, averageTime: 220, isFriend: true),
-        AppUser(name: "Elliot", imageName: "memoji_5", totalTime: 180, averageTime: 160, isFriend: true),
-        AppUser(name: "Ales", imageName: "memoji_1", totalTime: 150, averageTime: 120, isFriend: true),
-        AppUser(name: "Bailey", imageName: "memoji_2", totalTime: 200, averageTime: 180, isFriend: true),
-        AppUser(name: "Charlie", imageName: "memoji_3", totalTime: 100, averageTime: 90, isFriend: true),
-        AppUser(name: "Dylani", imageName: "memoji_4", totalTime: 250, averageTime: 220, isFriend: true),
-        AppUser(name: "Elliot", imageName: "memoji_5", totalTime: 180, averageTime: 160, isFriend: true),
-    ]
+    @StateObject var viewModel = FriendViewModel()
+    
     
     var body: some View {
         NavigationStack {
@@ -49,7 +36,7 @@ struct FriendsView: View {
                     
                     ScrollView {
                         VStack(spacing: 20) {
-                            ForEach(friends, id: \.name) { friend in
+                            ForEach(viewModel.friends) { friend in
                                 FriendRow(friend: friend)
                             }
                         }
@@ -77,12 +64,16 @@ struct FriendsView: View {
                 }
             }
         }
+        .onAppear {
+            viewModel.fetchUsers()
+        }
     }
+      
 }
 
 struct FriendRow: View {
     let friend: AppUser
-    
+
     var body: some View {
         HStack(spacing: 20) {
             ZStack {
@@ -114,6 +105,7 @@ struct FriendRow: View {
             Spacer()
         }
         .padding(.vertical, 10)
+        
     }
     
     func formatTime(_ minutes: Int) -> String {

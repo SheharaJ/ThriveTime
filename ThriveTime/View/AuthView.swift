@@ -5,6 +5,7 @@
 //  Created by Shehara Jayasooriya on 2025-04-24.
 //
 
+
 import Foundation
 import SwiftUI
 
@@ -15,9 +16,10 @@ extension Color {
     static let lightPurple = Color(red: 0.8, green: 0.7, blue: 1.0)
     static let pink = Color.pink
     static let textWhite = Color.white
+    
 }
 
-// MARK: - Signup View
+
 struct SignupView: View {
     @Environment(\.dismiss) var dismiss
     @State private var username = ""
@@ -42,7 +44,7 @@ struct SignupView: View {
             }
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.purple, lineWidth: 1)
+                        .stroke(Color.purple, lineWidth: 6)
                         .background(Color.mainBlack.opacity(0.6))
                         .cornerRadius(10)
 
@@ -56,7 +58,7 @@ struct SignupView: View {
                 
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.purple, lineWidth: 1)
+                        .stroke(Color.purple, lineWidth: 6)
                         .background(Color.mainBlack.opacity(0.6))
                         .cornerRadius(10)
 
@@ -71,7 +73,7 @@ struct SignupView: View {
                 
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.purple, lineWidth: 1)
+                        .stroke(Color.purple, lineWidth: 6)
                         .background(Color.mainBlack.opacity(0.6))
                         .cornerRadius(10)
 
@@ -86,12 +88,15 @@ struct SignupView: View {
                 Button(action: {}) {
                     Text("Sign Up")
                         .frame(maxWidth: .infinity)
+                        .font(.title3)
                         .padding()
                         .background(Color.mainPurple)
                         .foregroundColor(.textWhite)
                         .cornerRadius(10)
                 }
                 Spacer()
+                
+                
                 Button("Already have an account? Log In") {
                     dismiss()
                 }

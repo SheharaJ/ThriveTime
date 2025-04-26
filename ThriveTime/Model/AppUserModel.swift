@@ -6,11 +6,14 @@
 //
 
 import Foundation
+import FirebaseFirestore
 
-struct AppUser {
-    let name: String
-    let imageName: String
-    let totalTime: Int
-    let averageTime: Int
-    let isFriend: Bool
+struct AppUser: Identifiable, Codable {
+    @DocumentID var id: String?
+    var name: String
+    var imageName: String
+    var totalTime: Int
+    var averageTime: Int
+    var isFriend: Bool
 }
+

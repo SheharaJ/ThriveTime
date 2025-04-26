@@ -8,10 +8,10 @@
 import Foundation
 import SwiftUI
 import AVKit
-import UserNotifications
-
 
 struct HomeView: View {
+    
+    @StateObject private var userViewModel = UserViewModel()
     @State private var isRunning = false
     @State private var time = "00:00"
     @State private var selectedMemoji = "girl_10"
@@ -186,7 +186,9 @@ struct HomeView: View {
         .background(Color.init(hex: "#1A1A1D"))
         .onAppear {
             NotificationManager.shared.requestAuthorization()
+            userViewModel.fetchUser()
         }
+
         
         
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
@@ -206,6 +208,8 @@ struct HomeView: View {
     func resetTimer() {
         self.timer?.invalidate()
         self.timer = nil
+        let minutesFocused = secondsElapsed / 60
+        userViewModel.addFocusTime(minutes: minutesFocused)
         self.secondsElapsed = 0
         self.time = "00:00"
         
@@ -214,7 +218,7 @@ struct HomeView: View {
             body: "Stay focused — your timer is now stopped!"
         )
     }
-  
+
     
 }
 
